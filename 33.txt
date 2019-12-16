@@ -1,0 +1,124 @@
+#include "loginwindow.h"
+#include <QPushButton>
+#include <QString>
+#include <QMessageBox>
+//#include "Register.h"
+#include <Qtsql>
+#include<QLineEdit>
+Loginwindow::Loginwindow(QWidget*parent):QDialog(parent)
+{  //登陆界面定义
+    setWindowTitle(tr("电子商城登陆界面"));
+    //窗口只能最小化
+    this->setWindowFlags (this->windowFlags () | Qt::WindowMinimizeButtonHint|Qt::MSWindowsFixedSizeDialogHint);
+    //成员初始化
+    setFixedSize(300,200);
+  //  biaoqian= new QLabel(tr("欢迎进入电子商城"));
+    UserName = new QLabel(tr("用户名："));
+    Password = new QLabel(tr("密码："));
+    UserNameEdit = new QLineEdit();
+    PasswordEdit = new QLineEdit();
+    //QString md5=PasswordEdit->text();
+    //lineEdit->setEchoMode(QLineEdit::PasswordEchoOnEdit);
+    LoginButton = new QPushButton(tr("登陆"));
+    RegisterButton = new QPushButton(tr("退出"));
+    //实现上方信息网格布局
+    MessageLayout = new QGridLayout();
+    //MessageLayout->addWidget(biaoqian,0,0);
+    MessageLayout->addWidget(UserName,0,0);
+    MessageLayout->addWidget(UserNameEdit,0,1);
+    MessageLayout->addWidget(Password,1,0);
+    MessageLayout->addWidget(PasswordEdit,1,1);
+    //实现下方按钮网格布局
+    ButtonLayout = new QGridLayout();
+    ButtonLayout->addWidget(LoginButton,0,0);
+    ButtonLayout->addWidget(RegisterButton,0,1);
+    ButtonLayout->setSpacing(15);
+    //实现主网格
+    MainLayout = new QGridLayout(this);
+    MainLayout->addLayout(MessageLayout,0,0);
+    MainLayout->addLayout(ButtonLayout,1,0);
+    MainLayout->setMargin(15);
+    MainLayout->setSpacing(10);
+    //连接信号和槽
+    connect(LoginButton,SIGNAL(clicked()),this,SLOT(Login_slots()));
+    connect(RegisterButton,SIGNAL(clicked()),this,SLOT(Register_slots()));
+
+}
+//槽函数实现
+void Loginwindow::Login_slots()
+{
+        QString  UName = UserNameEdit->text();
+        QString  Pword = PasswordEdit->text();
+      //  QString Pword= PasswordEdit->setEchoMode(QLineEdit::Password);
+        QString s=QString("select * from member where MemberID='%1'and PassWord='%2' ").arg(UName).arg(Pword);//数据库存储用户名用username密码用password
+        /*if(UName == "admin"&&Pword == "admin")
+            QMessageBox::information(NULL, "登陆成功", "登陆成功！！！", QMessageBox::Yes);*/
+        //查询数据库如果账号和密码匹配返回真否则返回假
+        QSqlQuery query;
+        query.exec(s);
+        if(query.first())
+            QMessageBox::information(NULL, "登陆成功", "登陆成功！！！", QMessageBox::Yes);
+        else
+            QMessageBox::warning(NULL,"Error","登录失败，请重试！！！");
+
+}
+void Loginwindow::Register_slots(){
+    QDialog::reject();
+}
+Loginwindow::~Loginwindow()
+{
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#ifndef LOGINWINDOW_H
+#define LOGINWINDOW_H
+
+#include <QDialog>
+#include <QLabel>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QTextEdit>
+#include <QGridLayout>
+class Loginwindow : public QDialog
+{Q_OBJECT
+public:
+    Loginwindow(QWidget *parent = 0);
+    ~Loginwindow();
+private:
+    //声明布局
+   QGridLayout *MessageLayout;
+   QGridLayout *ButtonLayout;
+   QGridLayout *MainLayout;
+    //声明信息成员
+  // QLabel *biaoqian;
+   QLabel *UserName;
+   QLabel *Password;
+   QLineEdit *UserNameEdit;
+   QLineEdit *PasswordEdit;
+   QPushButton *LoginButton;
+   QPushButton *RegisterButton;
+    //声明槽
+public slots:
+   void Login_slots();
+   void Register_slots();
+
+};
+
+#endif // LOGINWINDOW_H
